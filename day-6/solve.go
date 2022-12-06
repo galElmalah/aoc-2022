@@ -27,17 +27,18 @@ func main() {
 func part1(raw []byte, offset int) int {
 	chars := parse(string(raw))
 	for i := 0; i < len(chars); i++ {
-		count := 0
+		duplicates := false
 		seen := map[string]bool{}
-		for j := i; j < i+offset && j < len(chars); j++ {
+		for j := i; j < i+offset; j++ {
 			if seen[chars[j]] {
+				duplicates = true
 				break
 			}
-			count++
 			seen[chars[j]] = true
-			if count == offset {
-				return j + 1
-			}
+		}
+
+		if !duplicates {
+			return i + offset
 		}
 	}
 	return -1
