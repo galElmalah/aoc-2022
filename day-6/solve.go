@@ -26,7 +26,7 @@ func main() {
 
 func part1(raw []byte, offset int) int {
 	chars := parse(string(raw))
-	for i := 0; i < len(chars); i++ {
+	for i := range chars {
 		set := map[string]bool{}
 		for _, c := range chars[i : i+offset] {
 			set[c] = true
