@@ -6,20 +6,20 @@ import (
 )
 
 type FileNode struct {
-	Name string
-	Size int
+	name string
+	size int
 }
 
 type DirNode struct {
-	Name string
+	name string
 }
 
 type LsNode struct {
-	Dir string
+	dir string
 }
 
 type CdNode struct {
-	To string
+	to string
 }
 
 func praseInt(s string) int {
@@ -30,21 +30,21 @@ func praseInt(s string) int {
 func CreateFileNode(str string) FileNode {
 	parts := strings.Split(str, " ")
 	return FileNode{
-		Name: parts[1],
-		Size: praseInt(parts[0]),
+		name: parts[1],
+		size: praseInt(parts[0]),
 	}
 }
 
 func CreateDirNode(str string) DirNode {
 	parts := strings.Split(str, " ")
 	return DirNode{
-		Name: parts[1],
+		name: parts[1],
 	}
 }
 
 func CreateCdNode(str string) CdNode {
 	parts := strings.Split(str, " ")
 	return CdNode{
-		To: parts[2],
+		to: parts[2],
 	}
 }
