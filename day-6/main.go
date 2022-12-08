@@ -2,30 +2,24 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
+
+	"github.com/galElmalah/aoc-2022/util"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
 func main() {
-	data, err := os.ReadFile("./input.txt")
-	check(err)
+	data := util.ReadFile("./input.txt")
 
 	fmt.Println("Part 1")
-	fmt.Println(part1(data, 4))
+	fmt.Println(Part1(data, 4))
 
 	fmt.Println("Part 2")
-	fmt.Println(part1(data, 14))
+	fmt.Println(Part1(data, 14))
 
 }
 
-func part1(raw []byte, offset int) int {
-	chars := parse(string(raw))
+func Part1(raw string, offset int) int {
+	chars := parse(raw)
 	for i := range chars {
 		set := map[string]bool{}
 		for _, c := range chars[i : i+offset] {

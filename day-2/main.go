@@ -2,32 +2,26 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"strings"
-)
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
+	"github.com/galElmalah/aoc-2022/util"
+)
 
 const WINNING_POINTS = 6
 const TIE_POINTS = 3
 
 func main() {
-	data, err := os.ReadFile("./input.txt")
-	check(err)
+	data := util.ReadFile("./input.txt")
 
 	fmt.Println("Part 1")
-	fmt.Println(part1(data))
+	fmt.Println(Part1(data))
 
 	fmt.Println("Part 2")
-	fmt.Println(part2(data))
+	fmt.Println(Part2(data))
 
 }
 
-func part1(raw []byte) int {
+func Part1(raw string) int {
 
 	pairs := parse(string(raw))
 
@@ -68,7 +62,7 @@ func part1(raw []byte) int {
 
 }
 
-func part2(raw []byte) int {
+func Part2(raw string) int {
 
 	var pairs = parse(string(raw))
 

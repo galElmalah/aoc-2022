@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/galElmalah/aoc-2022/util"
 )
 
 func main() {
 	chunks := parse()
 
 	result := []int{}
-	
+
 	for _, chunk := range chunks {
 		result = append(result, sumChunk(chunk))
 	}
@@ -37,7 +38,7 @@ func sumChunk(chunk string) int {
 }
 
 func parse() []string {
-	data, _ := os.ReadFile("./input.txt")
+	data := util.ReadFile("./input.txt")
 	chunks := strings.Split(string(data), "\n\n")
 	return chunks
 }

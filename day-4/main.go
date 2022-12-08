@@ -2,31 +2,25 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/galElmalah/aoc-2022/util"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
 func main() {
-	data, err := os.ReadFile("./input.txt")
-	check(err)
+	data := util.ReadFile("./input.txt")
 
 	fmt.Println("Part 1")
-	fmt.Println(part1(data))
+	fmt.Println(Part1(data))
 
 	fmt.Println("Part 2")
-	fmt.Println(part2(data))
+	fmt.Println(Part2(data))
 
 }
 
-func part1(raw []byte) int {
+func Part1(raw string) int {
 
 	var assignments = parse(string(raw))
 	count := 0
@@ -45,7 +39,7 @@ func part1(raw []byte) int {
 
 }
 
-func part2(raw []byte) int {
+func Part2(raw string) int {
 	var assignments = parse(string(raw))
 	count := 0
 	for _, pairAssignmentRange := range assignments {
