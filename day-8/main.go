@@ -20,7 +20,6 @@ func main() {
 
 func checkLeft(mat [][]int, i, j int) bool {
 	for k := j - 1; k >= 0; k-- {
-
 		if mat[i][k] >= mat[i][j] {
 			return false
 		}
