@@ -10,31 +10,31 @@ type FileTree struct {
 	Size   int
 	Parent *FileTree
 	Token  token.Token
-	name   string
+	Name   string
 	Sub    []*FileTree
 }
 
 func CreateFileTree(tokens []token.Token) *FileTree {
-	root := &FileTree{name: "/", Token: token.Token{Type: token.Dir, Literal: "/"}, Sub: []*FileTree{}}
+	root := &FileTree{Name: "/", Token: token.Token{Type: token.Dir, Literal: "/"}, Sub: []*FileTree{}}
 	current := root
 	for _, t := range tokens {
 		switch t.Type {
 		case token.File:
-			current.Size += CreateFileNode(t.Literal).size
+			current.Size += CreateFileNode(t.Literal).Size
 
 		case token.Dir:
 			node := CreateDirNode(t.Literal)
-			current.Sub = append(current.Sub, &FileTree{name: node.name, Token: t, Parent: current, Sub: []*FileTree{}})
+			current.Sub = append(current.Sub, &FileTree{Name: node.Name, Token: t, Parent: current, Sub: []*FileTree{}})
 		case token.Ls:
 			continue
 		case token.Cd:
 			cdNode := CreateCdNode(t.Literal)
-			if cdNode.to == ".." {
+			if cdNode.To == ".." {
 				current.Parent.Size += current.Size
 				current = current.Parent
 			} else {
 				for _, c := range current.Sub {
-					if cdNode.to == c.name {
+					if cdNode.To == c.Name {
 						current = c
 					}
 				}

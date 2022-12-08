@@ -7,36 +7,40 @@ import (
 )
 
 type FileNode struct {
-	name string
-	size int
+	Name string
+	Size int
 }
 
 type DirNode struct {
-	name string
+	Name string
+}
+
+type LsNode struct {
+	Dir string
 }
 
 type CdNode struct {
-	to string
+	To string
 }
 
 func CreateFileNode(str string) FileNode {
 	parts := strings.Split(str, " ")
 	return FileNode{
-		name: parts[1],
-		size: util.ParseInt(parts[0]),
+		Name: parts[1],
+		Size: util.ParseInt(parts[0]),
 	}
 }
 
 func CreateDirNode(str string) DirNode {
 	parts := strings.Split(str, " ")
 	return DirNode{
-		name: parts[1],
+		Name: parts[1],
 	}
 }
 
 func CreateCdNode(str string) CdNode {
 	parts := strings.Split(str, " ")
 	return CdNode{
-		to: parts[2],
+		To: parts[2],
 	}
 }
