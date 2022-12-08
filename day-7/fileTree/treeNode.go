@@ -1,8 +1,9 @@
 package fileTree
 
 import (
-	"strconv"
 	"strings"
+
+	"github.com/galElmalah/aoc-2022/util"
 )
 
 type FileNode struct {
@@ -14,24 +15,15 @@ type DirNode struct {
 	name string
 }
 
-type LsNode struct {
-	dir string
-}
-
 type CdNode struct {
 	to string
-}
-
-func praseInt(s string) int {
-	val, _ := strconv.Atoi(s)
-	return val
 }
 
 func CreateFileNode(str string) FileNode {
 	parts := strings.Split(str, " ")
 	return FileNode{
 		name: parts[1],
-		size: praseInt(parts[0]),
+		size: util.ParseInt(parts[0]),
 	}
 }
 
