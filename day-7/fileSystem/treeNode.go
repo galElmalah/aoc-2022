@@ -1,4 +1,4 @@
-package fileTree
+package fileSystem
 
 import (
 	"strings"

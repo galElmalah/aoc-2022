@@ -29,3 +29,19 @@ func TestPart1(t *testing.T) {
 		}
 	})
 }
+
+func BenchmarkPart1(b *testing.B) {
+	input := util.ReadFile("./input.txt")
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		Part1(input, 4)
+	}
+}
+
+func BenchmarkPart2(b *testing.B) {
+	input := util.ReadFile("./input.txt")
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		Part1(input, 14)
+	}
+}

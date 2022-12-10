@@ -3,13 +3,13 @@ package set
 import "fmt"
 
 type Set[T comparable] struct {
-	values map[T]struct{}
+	values map[T]bool
 }
 
 func NewSet[T comparable](values ...T) *Set[T] {
-	m := make(map[T]struct{}, len(values))
+	m := make(map[T]bool, len(values))
 	for _, v := range values {
-		m[v] = struct{}{}
+		m[v] = true
 	}
 	return &Set[T]{
 		values: m,
@@ -18,7 +18,7 @@ func NewSet[T comparable](values ...T) *Set[T] {
 
 func (s *Set[T]) Add(values ...T) {
 	for _, v := range values {
-		s.values[v] = struct{}{}
+		s.values[v] = true
 	}
 }
 
@@ -82,7 +82,7 @@ func (s *Set[T]) Size() int {
 }
 
 func (s *Set[T]) Clear() {
-	s.values = map[T]struct{}{}
+	s.values = map[T]bool{}
 }
 
 func (s *Set[T]) String() string {

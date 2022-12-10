@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"github.com/galElmalah/aoc-2022/day-7/fileTree"
+	"github.com/galElmalah/aoc-2022/day-7/fileSystem"
 	"github.com/galElmalah/aoc-2022/day-7/token"
 	"github.com/galElmalah/aoc-2022/util"
 )
@@ -74,10 +74,10 @@ func TestFileTree(t *testing.T) {
 	t.Run("Command", func(t *testing.T) {
 		input := "$ cd /\n$ ls\ndir a\ndir b\n50 c.dat\n$ cd a\n$ ls\n$ ls\n50 c.dat\n50 c.dat\n25 c.dat\n$ cd ..\n$ cd b\n$ ls\n50 c.dat$ cd .."
 
-		got := fileTree.CreateFileTree(token.Tokenize(input))
+		got := fileSystem.NewFileSystem(token.Tokenize(input))
 
 		str := ""
-		got.Walk(func(t *fileTree.FileTree) {
+		got.Walk(func(t *fileSystem.FileSystemNode) {
 			str += t.Name
 		})
 
@@ -90,10 +90,10 @@ func TestFileTree(t *testing.T) {
 	t.Run("Holds correct size", func(t *testing.T) {
 		input := "$ cd /\n$ ls\ndir a\ndir b\n50 c.dat\n$ cd a\n$ ls\n$ ls\n50 c.dat\n50 c.dat\n25 c.dat\n$ cd ..\n$ cd b\n$ ls\n50 c.dat$ cd .."
 
-		got := fileTree.CreateFileTree(token.Tokenize(input))
+		got := fileSystem.NewFileSystem(token.Tokenize(input))
 
-		if got.Size != 225 {
-			t.Errorf("got  %v want %v ", got.Size, 225)
+		if got.Size() != 225 {
+			t.Errorf("got  %v want %v ", got.Size(), 225)
 		}
 
 	})

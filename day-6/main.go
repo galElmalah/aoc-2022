@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
+	"github.com/galElmalah/aoc-2022/ds/set"
 	"github.com/galElmalah/aoc-2022/util"
 )
 
@@ -19,21 +19,18 @@ func main() {
 }
 
 func Part1(raw string, offset int) int {
-	chars := parse(raw)
-	for i := range chars {
-		set := map[string]bool{}
-		for _, c := range chars[i : i+offset] {
-			set[c] = true
+	for i := range raw {
+		set := set.NewSimpleSet[rune]()
+		for _, c := range raw[i : i+offset] {
+			if set.Has(c) {
+				break
+			}
+			set.Add(c)
 		}
 
-		if len(set) == offset {
+		if set.Size() == offset {
 			return i + offset
 		}
 	}
 	return -1
-}
-
-func parse(raw string) []string {
-	lines := strings.Split(string(raw), "")
-	return lines
 }

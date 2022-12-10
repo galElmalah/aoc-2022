@@ -56,41 +56,38 @@ func checkDown(mat [][]int, i, j int) bool {
 
 func Part1(raw string) int {
 	mat := parse(raw)
-	vis := (len(mat)-2)*2 + len(mat[0])*2
+	visibleTrees := (len(mat)-2)*2 + len(mat[0])*2
 
 	for i, row := range mat {
 		if i == 0 || i == len(mat)-1 {
 			continue
 		}
+
 		for j, _ := range row {
 			if j == 0 || j == len(row)-1 {
 				continue
 			}
 			if checkLeft(mat, i, j) {
-				vis++
+				visibleTrees++
 				continue
 			}
 			if checkRight(mat, i, j) {
-				vis++
+				visibleTrees++
 				continue
 			}
 			if checkUp(mat, i, j) {
-				vis++
+				visibleTrees++
 				continue
 			}
 			if checkDown(mat, i, j) {
-				vis++
+				visibleTrees++
 				continue
 			}
 
 		}
 	}
 
-	// for _, r := range mat {
-	// 	fmt.Println(r)
-	// }
-
-	return vis
+	return visibleTrees
 }
 
 func calcLeft(mat [][]int, i, j int) int {
@@ -143,20 +140,13 @@ func calcDown(mat [][]int, i, j int) int {
 
 func Part2(raw string) int {
 	mat := parse(raw)
-	scores := map[string]int{}
-
+	max := 0
 	for i, row := range mat {
-
 		for j, _ := range row {
 			score := calcLeft(mat, i, j) * calcRight(mat, i, j) * calcUp(mat, i, j) * calcDown(mat, i, j)
-			scores[fmt.Sprintf("%d,%d", i, j)] = score
-
-		}
-	}
-	max := 0
-	for _, v := range scores {
-		if v > max {
-			max = v
+			if score > max {
+				max = score
+			}
 		}
 	}
 

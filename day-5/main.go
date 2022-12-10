@@ -27,14 +27,14 @@ func Part1(raw string) string {
 
 	// mutating the stacks
 	for _, instruction := range instructions {
-		moveFrom := stacks[instruction.from]
-		moveTo := stacks[instruction.to]
+		from := instruction.from
+		to := instruction.to
+		// another approach is to create a slice of size amount from `moveFrom`
+		// reverse that slice and push it to `moveTo` but the approach here is much simpler to reason about
 		for i := 0; i < instruction.amount; i++ {
-			moveTo = append(moveTo, moveFrom[len(moveFrom)-1])
-			moveFrom = moveFrom[:len(moveFrom)-1]
+			stacks[to] = append(stacks[to], stacks[from][len(stacks[from])-1])
+			stacks[from] = stacks[from][:len(stacks[from])-1]
 		}
-		stacks[instruction.from] = moveFrom
-		stacks[instruction.to] = moveTo
 	}
 
 	answer := ""
@@ -52,10 +52,14 @@ func Part2(raw string) string {
 	stacks, instructions := parse(string(raw))
 	// mutating the stacks
 	for _, instruction := range instructions {
-		takeRange := len(stacks[instruction.from]) - instruction.amount
-
-		stacks[instruction.to] = append(stacks[instruction.to], stacks[instruction.from][takeRange:]...)
-		stacks[instruction.from] = stacks[instruction.from][:takeRange]
+		from := instruction.from
+		to := instruction.to
+		amount := instruction.amount
+		takeRange := len(stacks[from]) - amount
+		// take items from `takeRange` until the end of the slice and append them to the target stack
+		stacks[to] = append(stacks[to], stacks[from][takeRange:]...)
+		// remove items that come after the `takeRange` from our source crate
+		stacks[from] = stacks[from][:takeRange]
 	}
 
 	answer := ""
@@ -77,7 +81,7 @@ func chunkBy(items []string, chunkSize int) (chunks [][]string) {
 	return append(chunks, items)
 }
 
-func parse(raw string) ([][]string, []instruction) {
+func parse(raw string) ([][]string, []Instruction) {
 	chunks := strings.Split(string(raw), "\n\n")
 	rawCrates := strings.Split(chunks[0], "\n")
 	rawInstructions := strings.Split(chunks[1], "\n")
@@ -101,7 +105,7 @@ func parseStacks(crates []string) [][]string {
 	return stacks
 }
 
-type instruction struct {
+type Instruction struct {
 	amount int
 	from   int
 	to     int
@@ -115,11 +119,11 @@ func toInts(fromStrings []string) (result []int) {
 	return result
 }
 
-func parseInstructions(rawInstructions []string) (instructions []instruction) {
+func parseInstructions(rawInstructions []string) (instructions []Instruction) {
 	matcher := regexp.MustCompile(`move (\d+) from (\d+) to (\d+)`)
 	for _, line := range rawInstructions {
 		match := toInts(matcher.FindStringSubmatch(line)[1:])
-		instructions = append(instructions, instruction{
+		instructions = append(instructions, Instruction{
 			amount: match[0],
 			from:   match[1] - 1,
 			to:     match[2] - 1,

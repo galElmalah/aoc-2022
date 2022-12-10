@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/galElmalah/aoc-2022/day-7/fileTree"
+	"github.com/galElmalah/aoc-2022/day-7/fileSystem"
 	"github.com/galElmalah/aoc-2022/day-7/token"
 	"github.com/galElmalah/aoc-2022/util"
 )
@@ -20,11 +20,9 @@ func main() {
 }
 
 func Part1(raw string) int {
-	tree := parse(raw)
+	fs := parse(raw)
 	sum := 0
-	count := 0
-	tree.Walk(func(t *fileTree.FileTree) {
-		count++
+	fs.Walk(func(t *fileSystem.FileSystemNode) {
 		if t.Size <= 100000 {
 			sum += t.Size
 		}
@@ -34,17 +32,17 @@ func Part1(raw string) int {
 }
 
 func Part2(raw string) int {
-	tree := parse(raw)
+	fs := parse(raw)
 
 	const OS_MEM = 70000000
 	const THRESHOLD = 30000000
 
-	unusedSpace := OS_MEM - tree.Size
+	unusedSpace := OS_MEM - fs.Size()
 	min := OS_MEM
-	tree.Walk(func(t *fileTree.FileTree) {
-		if unusedSpace+t.Size > THRESHOLD {
-			if min > t.Size {
-				min = t.Size
+	fs.Walk(func(node *fileSystem.FileSystemNode) {
+		if unusedSpace+node.Size > THRESHOLD {
+			if min > node.Size {
+				min = node.Size
 			}
 		}
 	})
@@ -52,6 +50,6 @@ func Part2(raw string) int {
 	return min
 }
 
-func parse(raw string) *fileTree.FileTree {
-	return fileTree.CreateFileTree(token.Tokenize(raw))
+func parse(raw string) *fileSystem.FileSystem {
+	return fileSystem.NewFileSystem(token.Tokenize(raw))
 }
