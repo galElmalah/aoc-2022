@@ -58,7 +58,7 @@ func Part2(raw string) {
 	for _, ci := range instructions {
 		for j := 0; j < ci.cycles; j++ {
 			row := int(ticks / 40)
-			col := ticks - row*40
+			col := ticks % 40
 			d := util.Abs(col - x)
 			if d < 2 {
 				crt[row][col] = "#"
