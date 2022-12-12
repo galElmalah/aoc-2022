@@ -23,7 +23,7 @@ func (p *Point) adjust(leadingPoint *Point) {
 	dx := util.Abs(leadingPoint.x - p.x)
 	dy := util.Abs(leadingPoint.y - p.y)
 
-	if dx == 2 || dy == 2 {
+	if dx >= 2 || dy >= 2 {
 		if leadingPoint.x > p.x {
 			p.x++
 		} else if leadingPoint.x < p.x {

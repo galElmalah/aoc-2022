@@ -1,4 +1,4 @@
-package Q
+package queue
 
 import "fmt"
 
