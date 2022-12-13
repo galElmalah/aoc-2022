@@ -12,8 +12,8 @@ import (
 func main() {
 	data := util.ReadFile("./input.txt")
 
-	fmt.Println("Part 1")
-	fmt.Println(Part1(data))
+	// fmt.Println("Part 1")
+	// fmt.Println(Part1(data))
 
 	fmt.Println("Part 2")
 	fmt.Println(Part2(data))
@@ -155,7 +155,6 @@ func BFS2(graph [][]*Point, s []*Point, destination *Point) int {
 	Q := queue.Queue[*Point]{}
 	seen := set.NewSimpleSet[string]()
 	for _, v := range s {
-
 		Q.Enqueue(v)
 		seen.Add(v.id())
 	}
@@ -163,12 +162,12 @@ func BFS2(graph [][]*Point, s []*Point, destination *Point) int {
 
 	for !Q.IsEmpty() {
 		currentNode := Q.Dequeue()
+
 		if currentNode == destination {
 			// fmt.Println("found it!!!", currentNode)
 			break
 		}
 		neighbors := getNs(graph, currentNode)
-		// fmt.Printf("%s", currentNode.id())
 
 		for _, v := range neighbors {
 			if !seen.Has(v.id()) {
@@ -195,7 +194,7 @@ func BFS2(graph [][]*Point, s []*Point, destination *Point) int {
 }
 func Part2(raw string) int {
 	graph, start, dest := parse2(raw)
-
+	
 	steps := BFS2(graph, start, dest)
 
 	return steps

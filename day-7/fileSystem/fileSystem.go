@@ -18,6 +18,8 @@ type FileSystemNode struct {
 	Dirs   map[string]*FileSystemNode
 }
 
+
+
 func newFileSystemNode(name string, token token.Token, parent *FileSystemNode) *FileSystemNode {
 	return &FileSystemNode{Name: name, Parent: parent, Token: token, Dirs: map[string]*FileSystemNode{}}
 }

@@ -78,15 +78,15 @@ type Instruction struct {
 	value  int
 }
 
-func parse(raw string) (instructions []Instruction) {
+func parse(raw string) (instructions []*Instruction) {
 	lines := strings.Split(string(raw), "\n")
 
 	for _, l := range lines {
 		if strings.Contains(l, "noop") {
-			instructions = append(instructions, Instruction{cycles: 1, value: 0})
+			instructions = append(instructions, &Instruction{cycles: 1, value: 0})
 		} else {
 			parts := strings.Split(l, " ")
-			instructions = append(instructions, Instruction{cycles: 2, value: util.ParseInt(parts[1])})
+			instructions = append(instructions, &Instruction{cycles: 2, value: util.ParseInt(parts[1])})
 		}
 	}
 	return instructions
