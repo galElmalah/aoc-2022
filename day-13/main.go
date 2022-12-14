@@ -26,9 +26,9 @@ func compare(left, right any) int {
 	if !isLeftArray && !isRightArray {
 		return int(left.(float64) - right.(float64))
 	} else if !isLeftArray {
-		leftArr = []any{left}
+		return compare([]any{left}, right)
 	} else if !isRightArray {
-		rightArr = []any{right}
+		return compare(left, []any{right})
 	}
 
 	for i := 0; i < len(leftArr) && i < len(rightArr); i++ {
