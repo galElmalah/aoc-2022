@@ -3,62 +3,86 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/galElmalah/aoc-2022/util"
 )
 
 func main() {
-	data := util.ReadFile("./example.txt")
-
+	data := util.ReadFile("./input.txt")
+	//5964
 	fmt.Println("Part 1")
 	fmt.Println(Part1(data))
 
-	// fmt.Println("Part 2")
-	// fmt.Println(Part2(data))
+	fmt.Println("Part 2")
+	fmt.Println(Part2(data))
 
 }
 
-func typeof(v interface{}) string {
-	return fmt.Sprintf("%T", v)
-}
+func compare(left, right any) int {
+	leftArr, isLeftArray := left.([]any)
+	rightArr, isRightArray := right.([]any)
+	if !isLeftArray && !isRightArray {
+		return int(left.(float64) - right.(float64))
+	} else if !isLeftArray {
+		leftArr = []any{left}
+	} else if !isRightArray {
+		rightArr = []any{right}
+	}
 
-func compare(left, right []float64) {
-	for i, a := range left {
-		if typeof(a) == "int" && typeof(right[i]) == "int" {
-			println(a)
+	for i := 0; i < len(leftArr) && i < len(rightArr); i++ {
+		res := compare(leftArr[i], rightArr[i])
+		if res != 0 {
+			return res
 		}
 	}
+
+	return len(leftArr) - len(rightArr)
+
 }
 
 func Part1(raw string) int {
-	pairs := parse(raw)
-	for _, p := range pairs {
-		fmt.Println(p)
-		compare(p[0], p[1])
+	packets := parse(raw)
+	sum := 0
+
+	for i := 0; i < len(packets)-1; i += 2 {
+
+		rs := compare(packets[i], packets[i+1])
+		if rs <= 0 {
+			// fmt.Println(i + 1)
+			sum += int(i/2) + 1
+		}
 	}
 
-	return -1
+	return sum
 }
 
 func Part2(raw string) int {
-	input := parse(raw)
-	fmt.Println(input)
+	packets := parse(raw)
+	packets = append(packets, []any{[]any{float64(2)}}, []any{[]any{float64(6)}})
+	sort.Slice(packets, func(i, j int) bool { return compare(packets[i], packets[j]) < 0 })
+	res := 1
+	for i, p := range packets {
+		if fmt.Sprint(p) == "[[2]]" || fmt.Sprint(p) == "[[6]]" {
+			res *= i + 1
+		}
+	}
 
-	return -1
+	return res
 }
 
-func parse(raw string) [][]any {
-	var pairs [][]any
+func parse(raw string) []any {
+	var packets []any
 	lines := strings.Split(string(raw), "\n\n")
 	for _, l := range lines {
-		var left []any
-		var right []any
+		var left, right any
 		parts := strings.Split(l, "\n")
 		json.Unmarshal([]byte(parts[0]), &left)
 		json.Unmarshal([]byte(parts[1]), &right)
 
-		pairs = append(pairs, []any{left, right})
+		packets = append(packets, left, right)
 	}
-	return pairs
+
+	return packets
 }
