@@ -12,26 +12,167 @@ import (
 func main() {
 	data := util.ReadFile("./input.txt")
 
-	// fmt.Println("Part 1")
-	// fmt.Println(Part1(data))
+	fmt.Println("Part 1")
+	fmt.Println(Part1(data))
 
-	fmt.Println("Part 2")
-	fmt.Println(Part2(data))
+	fmt.Println("Part 2 - Naive approach")
+	fmt.Println(Part2NaiveApproach(data))
 
+	fmt.Println("Part 2 - Multi-source BFS")
+	fmt.Println(Part2MultiSourceBfs(data))
 }
 
 func Part1(raw string) int {
 	graph, start, dest := parse(raw)
 	steps := BFS(graph, start, dest)
-	// for _, v := range graph {
-	// 	for _, v2 := range v {
-	// 		fmt.Println(v2)
+	return steps
+}
 
-	// 	}
-	// }
-	// fmt.Println(graph)
+func Part2NaiveApproach(raw string) int {
+	graph, start, dest := parse2(raw)
+	steps := []int{}
+	for _, s := range start {
+		res := BFS(graph, s, dest)
+		if res > 0 {
+			steps = append(steps, res)
+		}
+	}
+
+	return getMinValue(steps)
+}
+
+func Part2MultiSourceBfs(raw string) int {
+	graph, start, dest := parse2(raw)
+	steps := MultiSourceBFS(graph, start, dest)
 
 	return steps
+}
+
+func BFS(graph [][]*Point, s *Point, destination *Point) int {
+	Q := queue.Queue[*Point]{}
+	Q.Enqueue(s)
+	backTrack := map[string]string{}
+	seen := set.NewSimpleSet[string]()
+
+	seen.Add(s.id())
+	for !Q.IsEmpty() {
+		currentNode := Q.Dequeue()
+		if currentNode == destination {
+			break
+		}
+		neighbors := getNeighbors(graph, currentNode)
+
+		for _, v := range neighbors {
+			if !seen.Has(v.id()) {
+				seen.Add(v.id())
+				backTrack[v.id()] = currentNode.id()
+				Q.Enqueue(v)
+			}
+		}
+	}
+	return count(backTrack, destination.id())
+}
+
+func getNeighbors(graph [][]*Point, sink *Point) (neighbors []*Point) {
+	moves := [][]int{{-1, 0}, {0, 1}, {1, 0}, {0, -1}}
+	for _, move := range moves {
+		di, dj := move[0]+sink.i, move[1]+sink.j
+		if di >= 0 && di < len(graph) && dj >= 0 && dj < len(graph[0]) {
+			delta := graph[di][dj].v - sink.v
+			if delta <= 1 {
+				neighbors = append(neighbors, graph[di][dj])
+			}
+		}
+	}
+	return neighbors
+}
+
+func count(backTrack map[string]string, id string) int {
+	v, ok := backTrack[id]
+	if ok {
+		return 1 + count(backTrack, v)
+	}
+	return 0
+}
+
+func parse(raw string) (matrix [][]*Point, start *Point, dest *Point) {
+	lines := strings.Split(string(raw), "\n")
+	matrix = make([][]*Point, len(lines))
+	for i := range matrix {
+		matrix[i] = make([]*Point, len(lines[0]))
+		rows := []*Point{}
+		for j, c := range lines[i] {
+			if c == 'S' {
+				start = createPoint(i, j, c)
+			}
+			if c == 'E' {
+				dest = createPoint(i, j, c)
+			}
+			rows = append(rows, createPoint(i, j, c))
+		}
+		matrix[i] = rows
+	}
+
+	return matrix, start, dest
+}
+
+func MultiSourceBFS(graph [][]*Point, s []*Point, destination *Point) int {
+	Q := queue.Queue[*Point]{}
+	seen := set.NewSimpleSet[string]()
+	for _, v := range s {
+		Q.Enqueue(v)
+		seen.Add(v.id())
+	}
+
+	backTrack := map[string]string{}
+
+	for !Q.IsEmpty() {
+		currentNode := Q.Dequeue()
+
+		if currentNode == destination {
+			break
+		}
+		neighbors := getNeighbors(graph, currentNode)
+
+		for _, v := range neighbors {
+			if !seen.Has(v.id()) {
+				seen.Add(v.id())
+				backTrack[v.id()] = currentNode.id()
+				Q.Enqueue(v)
+			}
+		}
+	}
+	return count(backTrack, destination.id())
+}
+
+func getMinValue(arr []int) (m int) {
+	for i, e := range arr {
+		if i == 0 || e < m && e != 0 {
+			m = e
+		}
+	}
+	return m
+}
+
+func parse2(raw string) (matrix [][]*Point, start []*Point, dest *Point) {
+	lines := strings.Split(string(raw), "\n")
+	matrix = make([][]*Point, len(lines))
+	for i := range matrix {
+		matrix[i] = make([]*Point, len(lines[0]))
+		rows := []*Point{}
+		for j, c := range lines[i] {
+			if c == 'S' || c == 'a' {
+				start = append(start, createPoint(i, j, c))
+			}
+			if c == 'E' {
+				dest = createPoint(i, j, c)
+			}
+			rows = append(rows, createPoint(i, j, c))
+		}
+		matrix[i] = rows
+	}
+
+	return matrix, start, dest
 }
 
 type Point struct {
@@ -43,189 +184,16 @@ func (p *Point) id() string {
 }
 
 func newPoint(i, j, v int) *Point {
-	return &Point{i, j, v}
+	return &Point{i: i, j: j, v: v}
 }
 
-func getNs(graph [][]*Point, sink *Point) []*Point {
-	result := []*Point{}
-	moves := [][]int{{-1, 0}, {0, 1}, {1, 0}, {0, -1}}
-	for _, move := range moves {
-		di, dj := move[0]+sink.i, move[1]+sink.j
-		if di == sink.i && dj == sink.j {
-			continue
-		}
-		if di >= 0 && di < len(graph) && dj >= 0 && dj < len(graph[0]) {
-			delta := graph[di][dj].v - sink.v
-			if delta > 1 {
-				continue
-			}
-			// fmt.Printf("yo %s %s", sink.id(), graph[di][dj].id())
-
-			result = append(result, graph[di][dj])
-		}
-
+func createPoint(i, j int, r rune) *Point {
+	switch r {
+	case 'S':
+		return newPoint(i, j, 0)
+	case 'E':
+		return newPoint(i, j, int('z')-int('a'))
+	default:
+		return newPoint(i, j, int(r)-int('a'))
 	}
-	return result
-
-}
-
-func print(backTrack map[string]string, id string) {
-	// fmt.Println(id)
-	v, ok := backTrack[id]
-	if ok {
-		print(backTrack, v)
-	}
-}
-
-func count(backTrack map[string]string, id string) int {
-	v, ok := backTrack[id]
-	if ok {
-		return 1 + count(backTrack, v)
-	}
-	return 0
-}
-
-func BFS(graph [][]*Point, s *Point, destination *Point) int {
-	Q := queue.Queue[*Point]{}
-	Q.Enqueue(s)
-	backTrack := map[string]string{}
-
-	seen := set.NewSimpleSet[string]()
-	seen.Add(s.id())
-	for !Q.IsEmpty() {
-		currentNode := Q.Dequeue()
-		if currentNode == destination {
-			// fmt.Println("found it!!!", currentNode)
-			break
-		}
-		neighbors := getNs(graph, currentNode)
-		// fmt.Printf("%s", currentNode.id())
-
-		for _, v := range neighbors {
-			if !seen.Has(v.id()) {
-				seen.Add(v.id())
-				backTrack[v.id()] = currentNode.id()
-				Q.Enqueue(v)
-				// fmt.Printf(" -> %s", v.id())
-			}
-
-		}
-		// fmt.Printf("\n")
-
-	}
-
-	// for _, v := range graph {
-	// 	fmt.Println()
-	// 	for _, k := range v {
-	// 		fmt.Printf(" %v %v  |", k.id(), k.v)
-	// 	}
-	// }
-
-	return count(backTrack, destination.id())
-
-}
-
-func parse(raw string) (graph [][]*Point, start *Point, dest *Point) {
-	lines := strings.Split(string(raw), "\n")
-	graph = make([][]*Point, len(lines))
-	for i := range graph {
-		graph[i] = make([]*Point, len(lines[0]))
-		points := []*Point{}
-		for j, c := range lines[i] {
-			if c == 'S' {
-				start = newPoint(i, j, 0)
-				points = append(points, start)
-				continue
-			}
-			if c == 'E' {
-				dest = newPoint(i, j, int('z')-int('a'))
-				points = append(points, dest)
-			} else {
-				points = append(points, newPoint(i, j, int(c)-int('a')))
-			}
-		}
-		graph[i] = points
-	}
-
-	return graph, start, dest
-
-}
-
-func BFS2(graph [][]*Point, s []*Point, destination *Point) int {
-	Q := queue.Queue[*Point]{}
-	seen := set.NewSimpleSet[string]()
-	for _, v := range s {
-		Q.Enqueue(v)
-		seen.Add(v.id())
-	}
-	backTrack := map[string]string{}
-
-	for !Q.IsEmpty() {
-		currentNode := Q.Dequeue()
-
-		if currentNode == destination {
-			// fmt.Println("found it!!!", currentNode)
-			break
-		}
-		neighbors := getNs(graph, currentNode)
-
-		for _, v := range neighbors {
-			if !seen.Has(v.id()) {
-				seen.Add(v.id())
-				backTrack[v.id()] = currentNode.id()
-				Q.Enqueue(v)
-				// fmt.Printf(" -> %s", v.id())
-			}
-
-		}
-		// fmt.Printf("\n")
-
-	}
-
-	// for _, v := range graph {
-	// 	fmt.Println()
-	// 	for _, k := range v {
-	// 		fmt.Printf(" %v %v  |", k.id(), k.v)
-	// 	}
-	// }
-
-	return count(backTrack, destination.id())
-
-}
-func Part2(raw string) int {
-	graph, start, dest := parse2(raw)
-	
-	steps := BFS2(graph, start, dest)
-
-	return steps
-}
-
-func parse2(raw string) (graph [][]*Point, start []*Point, dest *Point) {
-	lines := strings.Split(string(raw), "\n")
-	graph = make([][]*Point, len(lines))
-	for i := range graph {
-		graph[i] = make([]*Point, len(lines[0]))
-		points := []*Point{}
-		for j, c := range lines[i] {
-			if c == 'S' {
-				start = append(start, newPoint(i, j, 0))
-				points = append(points, newPoint(i, j, 0))
-
-				continue
-			}
-			if c == 'S' || c == 'a' {
-				start = append(start, newPoint(i, j, 0))
-			}
-			if c == 'E' {
-				dest = newPoint(i, j, int('z')-int('a'))
-				points = append(points, dest)
-			} else {
-				points = append(points, newPoint(i, j, int(c)-int('a')))
-			}
-		}
-		graph[i] = points
-	}
-
-	return graph, start, dest
-
 }

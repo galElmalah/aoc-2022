@@ -11,7 +11,7 @@ import (
 
 func main() {
 	data := util.ReadFile("./input.txt")
-	//5964
+
 	fmt.Println("Part 1")
 	fmt.Println(Part1(data))
 
@@ -47,10 +47,8 @@ func Part1(raw string) int {
 	sum := 0
 
 	for i := 0; i < len(packets)-1; i += 2 {
-
 		rs := compare(packets[i], packets[i+1])
 		if rs <= 0 {
-			// fmt.Println(i + 1)
 			sum += int(i/2) + 1
 		}
 	}
@@ -60,7 +58,8 @@ func Part1(raw string) int {
 
 func Part2(raw string) int {
 	packets := parse(raw)
-	packets = append(packets, []any{[]any{float64(2)}}, []any{[]any{float64(6)}})
+	div1, div2 := []any{[]any{float64(2)}}, []any{[]any{float64(6)}}
+	packets = append(packets, div1, div2)
 	sort.Slice(packets, func(i, j int) bool { return compare(packets[i], packets[j]) < 0 })
 	res := 1
 	for i, p := range packets {
