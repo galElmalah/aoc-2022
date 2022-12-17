@@ -34,6 +34,21 @@ func (p *Point) Move(direction Direction) *Point {
 	}
 }
 
+func (p *Point) MoveMutate(direction Direction) {
+	switch direction {
+	case U:
+		p.Y--
+	case R:
+		p.X++
+	case D:
+		p.Y++
+	case L:
+		p.X--
+	default:
+		fmt.Println("ho shit")
+	}
+}
+
 func NewPoint(x, y int) *Point {
 	return &Point{x, y}
 }
