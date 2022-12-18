@@ -107,15 +107,14 @@ func Part1Ranges(raw string) int {
 	ranges = ranges[1:]
 	for i := 0; i < len(ranges); i++ {
 
-		_, cex, nsx, nex := currentRange[0], currentRange[1], ranges[i][0], ranges[i][1]
+		cex, nsx, nex := currentRange[1], ranges[i][0], ranges[i][1]
 
 		// This means we need to keep on merging!
 		if cex >= nsx {
-
+			// Expand current range (csx, cex) to -> (csx, max(cex, nex))
 			currentRange[1] = util.Max(cex, nex)
-
-			// else we can't merge so we push the range and continue
 		} else {
+			// else we can't merge so we push the range and continue
 			merged = append(merged, currentRange)
 			currentRange = ranges[i]
 		}
