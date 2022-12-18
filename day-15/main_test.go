@@ -47,3 +47,10 @@ func BenchmarkPart1Ranges(b *testing.B) {
 		Part1Ranges(input)
 	}
 }
+
+func BenchmarkPart2(b *testing.B) {
+	input := util.ReadFile("./input.txt")
+	for n := 0; n < b.N; n++ {
+		Part2(input)
+	}
+}

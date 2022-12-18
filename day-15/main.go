@@ -13,17 +13,18 @@ import (
 func main() {
 	data := util.ReadFile("./input.txt")
 
-	fmt.Println("Part 1")
-	fmt.Println(Part1(data))
+	// fmt.Println("Part 1")
+	// fmt.Println(Part1(data))
 
-	fmt.Println("Part 1 Ranges")
-	fmt.Println(Part1Ranges(data))
-	// fmt.Println("Part 2")
-	// fmt.Println(Part2(data))
+	// fmt.Println("Part 1 Ranges")
+	// fmt.Println(Part1Ranges(data))
+
+	fmt.Println("Part 2")
+	fmt.Println(Part2(data))
 
 }
 
-const ROW = 2000000
+const ROW = 10
 
 func Part1(raw string) int {
 	sensors := parse(raw)
@@ -102,7 +103,7 @@ func Part1Ranges(raw string) int {
 		return ranges[i][0] < ranges[j][0]
 	})
 
-	currentRange := []int{ranges[0][0], ranges[0][1]}
+	currentRange := ranges[0]
 	merged := [][]int{}
 	ranges = ranges[1:]
 	for i := 0; i < len(ranges); i++ {
@@ -110,7 +111,7 @@ func Part1Ranges(raw string) int {
 		cex, nsx, nex := currentRange[1], ranges[i][0], ranges[i][1]
 
 		// This means we need to keep on merging!
-		if cex >= nsx {
+		if cex >= nsx-1 {
 			// Expand current range (csx, cex) to -> (csx, max(cex, nex))
 			currentRange[1] = util.Max(cex, nex)
 		} else {
@@ -138,46 +139,48 @@ func Part1Ranges(raw string) int {
 
 func Part2(raw string) int {
 	sensors := parse(raw)
-	c := 0
-
 	// 0 sensor, 1 beacon, 2 cover area
-	grid := map[string]int{}
-	for _, s := range sensors {
-		grid[s.position.Id()] = 0
-		grid[s.beacon.Id()] = 1
-		dist := s.DistanceFromBeacon()
-		if s.position.Y < ROW && s.position.Y+dist > ROW {
-			for i := 0; i <= dist-(util.Abs(ROW-s.position.Y)); i++ {
-				right, left := point.NewPoint(s.position.X+i, ROW), point.NewPoint(s.position.X-i, ROW)
-				if _, ok := grid[right.Id()]; !ok {
-					grid[right.Id()] = 2
-					c++
-				}
-				if _, ok := grid[left.Id()]; !ok {
-					grid[left.Id()] = 2
-					c++
-				}
+	for y := 0; y < 4000000; y++ {
+		ranges := [][]int{}
+		for _, s := range sensors {
 
+			span := s.DistanceFromBeacon() - util.Abs(y-s.position.Y)
+			from, to := s.position.X-span, s.position.X+span
+			if from > 4000000 {
+				continue
 			}
+			if to < 0 {
+				continue
+			}
+			// We don't really care about overlapping beacons anymore
+			if s.IsInRange(s.position.X, y) {
+				ranges = append(ranges, []int{from, to})
+			}
+
 		}
 
-		if s.position.Y > ROW && s.position.Y-dist < ROW {
-			for i := 0; i <= dist-(util.Abs(ROW-s.position.Y)); i++ {
-				right, left := point.NewPoint(s.position.X+i, ROW), point.NewPoint(s.position.X-i, ROW)
-				if _, ok := grid[right.Id()]; !ok {
-					grid[right.Id()] = 2
-					c++
-				}
-				if _, ok := grid[left.Id()]; !ok {
-					grid[left.Id()] = 2
-					c++
-				}
+		sort.Slice(ranges, func(i, j int) bool {
+			return ranges[i][0] < ranges[j][0]
+		})
 
+		currentRange := ranges[0]
+		ranges = ranges[1:]
+		for i := 0; i < len(ranges); i++ {
+			cex, nsx, nex := currentRange[1], ranges[i][0], ranges[i][1]
+
+			// This means we need to keep on merging!
+			if cex >= nsx-1 {
+				// Expand current range (csx, cex) to -> (csx, max(cex, nex))
+				currentRange[1] = util.Max(cex, nex)
+			} else {
+				// we found some range with a spot that can't be merged -> ##.### meaning there is a gap in our range
+				// Since we know there is only one possible location that the beacon can reside in we know that it has to be in that gap!
+				return (currentRange[1]+1)*4000000 + y
 			}
+
 		}
 	}
-
-	return c
+	return -1
 }
 
 type Sensor struct {
