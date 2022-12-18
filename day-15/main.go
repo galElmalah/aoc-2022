@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/galElmalah/aoc-2022/ds/point"
 	"github.com/galElmalah/aoc-2022/util"
 )
 
@@ -15,14 +16,14 @@ func main() {
 	fmt.Println("Part 1")
 	fmt.Println(Part1(data))
 
-	fmt.Println("Part 1 ranges")
+	fmt.Println("Part 1 Ranges")
 	fmt.Println(Part1Ranges(data))
 	// fmt.Println("Part 2")
 	// fmt.Println(Part2(data))
 
 }
 
-const ROW = 10
+const ROW = 2000000
 
 func Part1(raw string) int {
 	sensors := parse(raw)
@@ -31,35 +32,35 @@ func Part1(raw string) int {
 	// 0 sensor, 1 beacon, 2 cover area
 	grid := map[string]int{}
 	for _, s := range sensors {
-		grid[s.position.id()] = 0
-		grid[s.beacon.id()] = 1
+		grid[s.position.Id()] = 0
+		grid[s.beacon.Id()] = 1
 		dist := s.DistanceFromBeacon()
-		if s.position.y < ROW && s.position.y+dist > ROW {
-			cc += ((dist - (util.Abs(ROW - s.position.y))) * 2) - 1
+		if s.position.Y < ROW && s.position.Y+dist > ROW {
+			cc += ((dist - (util.Abs(ROW - s.position.Y))) * 2) - 1
 
-			for i := 0; i <= dist-(util.Abs(ROW-s.position.y)); i++ {
-				right, left := newPoint(s.position.x+i, ROW), newPoint(s.position.x-i, ROW)
-				if _, ok := grid[right.id()]; !ok {
-					grid[right.id()] = 2
+			for i := 0; i <= dist-(util.Abs(ROW-s.position.Y)); i++ {
+				right, left := point.NewPoint(s.position.X+i, ROW), point.NewPoint(s.position.X-i, ROW)
+				if _, ok := grid[right.Id()]; !ok {
+					grid[right.Id()] = 2
 					c++
 				}
-				if _, ok := grid[left.id()]; !ok {
-					grid[left.id()] = 2
+				if _, ok := grid[left.Id()]; !ok {
+					grid[left.Id()] = 2
 					c++
 				}
 
 			}
 		}
 
-		if s.position.y > ROW && s.position.y-dist < ROW {
-			for i := 0; i <= dist-(util.Abs(ROW-s.position.y)); i++ {
-				right, left := newPoint(s.position.x+i, ROW), newPoint(s.position.x-i, ROW)
-				if _, ok := grid[right.id()]; !ok {
-					grid[right.id()] = 2
+		if s.position.Y > ROW && s.position.Y-dist < ROW {
+			for i := 0; i <= dist-(util.Abs(ROW-s.position.Y)); i++ {
+				right, left := point.NewPoint(s.position.X+i, ROW), point.NewPoint(s.position.X-i, ROW)
+				if _, ok := grid[right.Id()]; !ok {
+					grid[right.Id()] = 2
 					c++
 				}
-				if _, ok := grid[left.id()]; !ok {
-					grid[left.id()] = 2
+				if _, ok := grid[left.Id()]; !ok {
+					grid[left.Id()] = 2
 					c++
 				}
 
@@ -76,73 +77,67 @@ func Part1Ranges(raw string) int {
 	// 0 sensor, 1 beacon, 2 cover area
 	for _, s := range sensors {
 
-		dist := s.DistanceFromBeacon()
-		span := dist - util.Abs(ROW-s.position.y)
-		if s.position.y < ROW && s.position.y+dist > ROW {
-			if s.beacon.y == ROW {
-				if s.beacon.x > s.position.x {
-					ranges = append(ranges, []int{s.position.x - span, s.position.x + span - 1})
+		span := s.DistanceFromBeacon() - util.Abs(ROW-s.position.Y)
+		from, to := s.position.X-span, s.position.X+span
+
+		// Check if point X is in range of the sensor according to beacon location
+		if s.IsInRange(s.position.X, ROW) {
+			if s.beacon.Y == ROW {
+				// account for beacons on the edge of the range and make sure to exclude them
+				if s.beacon.X > s.position.X {
+					ranges = append(ranges, []int{from, to - 1})
 				} else {
-					ranges = append(ranges, []int{s.position.x - span + 1, s.position.x + span})
+					ranges = append(ranges, []int{from + 1, to})
 				}
 			} else {
-				ranges = append(ranges, []int{s.position.x - span, s.position.x + span})
+				ranges = append(ranges, []int{from, to})
 
 			}
 
 		}
 
-		if s.position.y > ROW && s.position.y-dist < ROW {
-
-			if s.beacon.y == ROW {
-				if s.beacon.x > s.position.x {
-					ranges = append(ranges, []int{s.position.x - span, s.position.x + span - 1})
-				} else {
-					ranges = append(ranges, []int{s.position.x - span + 1, s.position.x + span})
-				}
-			} else {
-				ranges = append(ranges, []int{s.position.x - span, s.position.x + span})
-
-			}
-
-		}
 	}
 
 	sort.Slice(ranges, func(i, j int) bool {
 		return ranges[i][0] < ranges[j][0]
 	})
 
-	curr := []int{ranges[0][0], ranges[0][1]}
+	currentRange := []int{ranges[0][0], ranges[0][1]}
 	merged := [][]int{}
-	wo := ranges[1:]
-	for i := 0; i < len(wo); i++ {
+	ranges = ranges[1:]
+	for i := 0; i < len(ranges); i++ {
 
-		csx, cex, nsx, nex := curr[0], curr[1], wo[i][0], wo[i][1]
+		_, cex, nsx, nex := currentRange[0], currentRange[1], ranges[i][0], ranges[i][1]
 
+		// This means we need to keep on merging!
 		if cex >= nsx {
 			max := 0
 			if max = cex; cex < nex {
 				max = nex
 			}
-			curr = []int{csx, max}
+			currentRange[1] = max
+
+			// else we can't merge so we push the range and continue
 		} else {
-			merged = append(merged, curr)
-			curr = wo[i]
+			merged = append(merged, currentRange)
+			currentRange = ranges[i]
 		}
 
-		if i == len(wo)-1 {
-			merged = append(merged, curr)
+		if i == len(ranges)-1 {
+			merged = append(merged, currentRange)
 			break
 		}
 	}
-	s := 0
+
+	sum := 0
 
 	for _, v := range merged {
+		// + 1 to make it inclusive for each starting point
 		d := util.Abs(v[0]-v[1]) + 1
-		s += d
+		sum += d
 	}
 
-	return s
+	return sum
 }
 
 func Part2(raw string) int {
@@ -152,33 +147,33 @@ func Part2(raw string) int {
 	// 0 sensor, 1 beacon, 2 cover area
 	grid := map[string]int{}
 	for _, s := range sensors {
-		grid[s.position.id()] = 0
-		grid[s.beacon.id()] = 1
+		grid[s.position.Id()] = 0
+		grid[s.beacon.Id()] = 1
 		dist := s.DistanceFromBeacon()
-		if s.position.y < ROW && s.position.y+dist > ROW {
-			for i := 0; i <= dist-(util.Abs(ROW-s.position.y)); i++ {
-				right, left := newPoint(s.position.x+i, ROW), newPoint(s.position.x-i, ROW)
-				if _, ok := grid[right.id()]; !ok {
-					grid[right.id()] = 2
+		if s.position.Y < ROW && s.position.Y+dist > ROW {
+			for i := 0; i <= dist-(util.Abs(ROW-s.position.Y)); i++ {
+				right, left := point.NewPoint(s.position.X+i, ROW), point.NewPoint(s.position.X-i, ROW)
+				if _, ok := grid[right.Id()]; !ok {
+					grid[right.Id()] = 2
 					c++
 				}
-				if _, ok := grid[left.id()]; !ok {
-					grid[left.id()] = 2
+				if _, ok := grid[left.Id()]; !ok {
+					grid[left.Id()] = 2
 					c++
 				}
 
 			}
 		}
 
-		if s.position.y > ROW && s.position.y-dist < ROW {
-			for i := 0; i <= dist-(util.Abs(ROW-s.position.y)); i++ {
-				right, left := newPoint(s.position.x+i, ROW), newPoint(s.position.x-i, ROW)
-				if _, ok := grid[right.id()]; !ok {
-					grid[right.id()] = 2
+		if s.position.Y > ROW && s.position.Y-dist < ROW {
+			for i := 0; i <= dist-(util.Abs(ROW-s.position.Y)); i++ {
+				right, left := point.NewPoint(s.position.X+i, ROW), point.NewPoint(s.position.X-i, ROW)
+				if _, ok := grid[right.Id()]; !ok {
+					grid[right.Id()] = 2
 					c++
 				}
-				if _, ok := grid[left.id()]; !ok {
-					grid[left.id()] = 2
+				if _, ok := grid[left.Id()]; !ok {
+					grid[left.Id()] = 2
 					c++
 				}
 
@@ -193,24 +188,16 @@ type Point struct {
 	x, y int
 }
 
-func (p *Point) id() string {
-	return fmt.Sprintf("(%d,%d)", p.x, p.y)
-}
-
-func newPoint(x, y int) *Point {
-	return &Point{x: x, y: y}
-}
-
 type Sensor struct {
-	position, beacon *Point
+	position, beacon *point.Point
 }
 
 func newSensor(sx, sy, bx, by int) Sensor {
-	return Sensor{position: newPoint(sx, sy), beacon: newPoint(bx, by)}
+	return Sensor{position: point.NewPoint(sx, sy), beacon: point.NewPoint(bx, by)}
 }
 
-func manhattanDistance(p1, p2 *Point) int {
-	return util.Abs[int](p1.x-p2.x) + util.Abs[int](p1.y-p2.y)
+func manhattanDistance(p1, p2 *point.Point) int {
+	return util.Abs(p1.X-p2.X) + util.Abs(p1.Y-p2.Y)
 }
 
 func (s *Sensor) DistanceFromBeacon() int {
@@ -219,7 +206,7 @@ func (s *Sensor) DistanceFromBeacon() int {
 
 func (s *Sensor) IsInRange(x, y int) bool {
 	bm := manhattanDistance(s.position, s.beacon)
-	pm := manhattanDistance(s.position, newPoint(x, y))
+	pm := manhattanDistance(s.position, point.NewPoint(x, y))
 	return bm >= pm
 }
 
