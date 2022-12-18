@@ -111,11 +111,8 @@ func Part1Ranges(raw string) int {
 
 		// This means we need to keep on merging!
 		if cex >= nsx {
-			max := 0
-			if max = cex; cex < nex {
-				max = nex
-			}
-			currentRange[1] = max
+
+			currentRange[1] = util.Max(cex, nex)
 
 			// else we can't merge so we push the range and continue
 		} else {
@@ -182,10 +179,6 @@ func Part2(raw string) int {
 	}
 
 	return c
-}
-
-type Point struct {
-	x, y int
 }
 
 type Sensor struct {
