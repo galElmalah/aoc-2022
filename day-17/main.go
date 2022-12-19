@@ -23,10 +23,18 @@ func main() {
 func Part1(raw string) int {
 	shapes, moves := parse(raw)
 	// grid := map[string]int
-	xl := 7
+	yl = 0
+	xl = 7
 
 	for i := 0; i < 2022; i++ {
-
+		shapes = getShapes(yl)
+		cs := shapes.Dequeue()
+		cs.move(point.D)
+		var move point.Direction
+		if move = point.R; moves[i] == ">" {
+			move = point.L
+		}
+		cs.move()
 	}
 	return -1
 }
@@ -48,33 +56,30 @@ func (s *Shape) move(direction point.Direction) {
 	}
 }
 
-// func (s *Shape) bounds() (top, right, down, left *point.Point) {
+func (s *Shape) LowestY() int {
+	lowest := s.points[0].Y
+	for _, p := range s.points {
+		lowest = util.Max(lowest, p.Y)
+	}
+	return lowest
+}
 
-// 	for _, p := range s.points {
-// 		if top.Y > p.Y {
-// 			top = p
-// 		}
-// 		if right.X > p.Y {
-// 			top = p
-// 		}
-// 	}†
-// }
-
-func getShapes() queue.Queue[*Shape] {
+func getShapes(y int) queue.Queue[*Shape] {
 	Q := queue.Queue[*Shape]{}
-	s1 := Shape{points: []*point.Point{point.NewPoint(2, 0), point.NewPoint(3, 0), point.NewPoint(4, 0), point.NewPoint(5, 0)}}
-	s2 := Shape{points: []*point.Point{point.NewPoint(2, 0), point.NewPoint(3, 0), point.NewPoint(3, -1), point.NewPoint(3, 1), point.NewPoint(4, 0)}}
-	s3 := Shape{points: []*point.Point{point.NewPoint(4, 0), point.NewPoint(4, 1), point.NewPoint(4, 2), point.NewPoint(3, 2), point.NewPoint(2, 2)}}
-	s4 := Shape{points: []*point.Point{point.NewPoint(0, 0), point.NewPoint(0, 1), point.NewPoint(0, 2), point.NewPoint(0, 3)}}
-	s5 := Shape{points: []*point.Point{point.NewPoint(2, 0), point.NewPoint(3, 0), point.NewPoint(2, 1), point.NewPoint(3, 1)}}
+	s1 := Shape{points: []*point.Point{point.NewPoint(2, y-3), point.NewPoint(3, y-3), point.NewPoint(4, y-3), point.NewPoint(5, y-3)}}
+	s2 := Shape{points: []*point.Point{point.NewPoint(2, y-3), point.NewPoint(3, y-3), point.NewPoint(3, y-31), point.NewPoint(3, y-3), point.NewPoint(4, y-3)}}
+	s3 := Shape{points: []*point.Point{point.NewPoint(4, y-3), point.NewPoint(4, y-3), point.NewPoint(4, y-3), point.NewPoint(3, y-3), point.NewPoint(2, y-3)}}
+	s4 := Shape{points: []*point.Point{point.NewPoint(0, y-3), point.NewPoint(0, y-3), point.NewPoint(0, y-3), point.NewPoint(0, y-3)}}
+	s5 := Shape{points: []*point.Point{point.NewPoint(2, y-3), point.NewPoint(3, y-3), point.NewPoint(2, y-3), point.NewPoint(3, y-3)}}
 	for _, s := range []Shape{s1, s2, s3, s4, s5} {
 		Q.Enqueue(&s)
 	}
 	return Q
 }
 
-func parse(raw string) (shapes []Shape, moves []string) {
-	shapes = getShapes()
+func parse(raw string) (shapes queue.Queue[*Shape], moves []string) {
+	shapes = getShapes(0)
 	moves = strings.Split(string(raw), "")
+
 	return shapes, moves
 }

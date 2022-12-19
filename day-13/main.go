@@ -31,7 +31,7 @@ func compare(left, right any) int {
 		return compare(left, []any{right})
 	}
 
-	for i := 0; i < len(leftArr) && i < len(rightArr); i++ {
+	for i := 0; i < util.Min(len(leftArr), len(rightArr)); i++ {
 		res := compare(leftArr[i], rightArr[i])
 		if res != 0 {
 			return res
@@ -49,23 +49,35 @@ func Part1(raw string) int {
 	for i := 0; i < len(packets)-1; i += 2 {
 		rs := compare(packets[i], packets[i+1])
 		if rs <= 0 {
-			sum += int(i/2) + 1
+			sum += int((i + 2) / 2)
 		}
 	}
 
 	return sum
 }
+func stringifyPacket(p any) string {
+	packet, _ := json.Marshal(p)
+	return string(packet)
+}
 
 func Part2(raw string) int {
 	packets := parse(raw)
 	div1, div2 := []any{[]any{float64(2)}}, []any{[]any{float64(6)}}
+	div1Str, div2Str := stringifyPacket(div1), stringifyPacket(div2)
+
 	packets = append(packets, div1, div2)
+
 	sort.Slice(packets, func(i, j int) bool { return compare(packets[i], packets[j]) < 0 })
+
 	res := 1
 	for i, p := range packets {
-		if fmt.Sprint(p) == "[[2]]" || fmt.Sprint(p) == "[[6]]" {
-			res *= i + 1
+		if len(p.([]any)) == 1 {
+			packet := stringifyPacket(p)
+			if packet == div1Str || packet == div2Str {
+				res *= i + 1
+			}
 		}
+
 	}
 
 	return res
@@ -73,8 +85,8 @@ func Part2(raw string) int {
 
 func parse(raw string) []any {
 	var packets []any
-	lines := strings.Split(string(raw), "\n\n")
-	for _, l := range lines {
+	packetPairs := strings.Split(string(raw), "\n\n")
+	for _, l := range packetPairs {
 		var left, right any
 		parts := strings.Split(l, "\n")
 		json.Unmarshal([]byte(parts[0]), &left)
